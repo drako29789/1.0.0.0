@@ -1,0 +1,44 @@
+#include <Servo.h>
+
+// Objetos servo
+Servo servoHombro;
+Servo servoAntebrazo;
+
+// Pines
+const int pinJoyX = A0;       // VRx del joystick
+const int pinJoyY = A1;       // VRy del joystick
+const int pinServoHombro    = 9;
+const int pinServoAntebrazo = 10;
+
+// Parámetros de dead-zone (ajústalo)
+const int centro     = 512;   // punto medio 0–1023
+const int zonaMuerta = 30;    // ±30 lecturas se ignorarán
+
+void setup() {
+  servoHombro.attach(pinServoHombro);
+  servoAntebrazo.attach(pinServoAntebrazo);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int valX = analogRead(pinJoyX);
+  int valY = analogRead(pinJoyY);
+
+  // ── HOMBRO: sólo si Y sale de la zona muerta ───────────────
+  if (abs(valY - centro) > zonaMuerta) {
+    // Mapear directamente el eje Y al servoHombro (0°–180°)
+    int angHombro = map(valY, 0, 1023, 0, 180);
+    servoHombro.write(angHombro);
+    Serial.print("Hombro: "); Serial.println(angHombro);
+  }
+
+  // ── ANTEBRAZO: sólo si X sale de la zona muerta ─────────────
+  if (abs(valX - centro) > zonaMuerta) {
+    // Mapear directamente el eje X al servoAntebrazo (0°–180°)
+    int angAntebrazo = map(valX, 0, 1023, 0, 180);
+    servoAntebrazo.write(angAntebrazo);
+    Serial.print("Antebrazo: "); Serial.println(angAntebrazo);
+  }
+
+  delay(20);
+}
